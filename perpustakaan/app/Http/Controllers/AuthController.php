@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     // REGISTER
-
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -31,9 +30,7 @@ class AuthController extends Controller
         ], 200);
     }
 
-
     // LOGIN
-
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -64,5 +61,16 @@ class AuthController extends Controller
     {
         $request->user()->tokens()->delete();
         return response()->json(['message' => 'Logout success']);
+    }
+
+    // ✅ TAMBAHAN UNTUK WEB
+    public function showLoginForm()
+    {
+        return view('auth.login');
+    }
+
+    public function showRegisterForm()
+    {
+        return view('auth.register');
     }
 }
