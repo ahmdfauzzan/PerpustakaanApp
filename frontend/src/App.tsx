@@ -35,11 +35,21 @@ function App() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const user = localStorage.getItem("user");
-    if (token && user) {
-      setIsAuthenticated(true);
-      setUserName(JSON.parse(user).name);
-      setCurrentPage("dashboard");
+    const storedUser = localStorage.getItem("user");
+
+    if (token && storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        if (parsedUser && parsedUser.name) {
+          setIsAuthenticated(true);
+          setUserName(parsedUser.name);
+          setCurrentPage("dashboard");
+        }
+      } catch (error) {
+        console.error("Invalid user data in localStorage:", error);
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+      }
     }
   }, []);
 

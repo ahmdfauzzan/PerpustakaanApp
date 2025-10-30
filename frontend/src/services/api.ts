@@ -1,44 +1,52 @@
 import type { AuthResponse, Book, Loan, Member } from "../types";
 
-
-const API_URL = 'http://localhost:8000/api';
+const API_URL = "http://localhost:8000/api";
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   return {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` }),
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
   };
 };
 
 export const authAPI = {
   login: async (email: string, password: string): Promise<AuthResponse> => {
     const response = await fetch(`${API_URL}/login`, {
-      method: 'POST',
+      method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify({ email, password }),
     });
-    if (!response.ok) throw new Error('Login failed');
+    if (!response.ok) throw new Error("Login failed");
     return response.json();
   },
 
-  register: async (name: string, email: string, password: string, password_confirmation: string): Promise<AuthResponse> => {
-    const response = await fetch(`${API_URL}/register`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ name, email, password, password_confirmation }),
-    });
-    if (!response.ok) throw new Error('Registration failed');
-    return response.json();
-  },
+ register: async (name: string, email: string, password: string): Promise<AuthResponse> => {
+  const response = await fetch(`${API_URL}/register`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ name, email, password }),
+  });
+
+  // Abaikan error kecil, tetap ambil JSON dulu
+  const data = await response.json();
+
+  // Jika status 200 atau 201, anggap sukses
+  if (response.status === 200 || response.status === 201) {
+    return data;
+  } else {
+    throw new Error(data.message || "Registration failed");
+  }
+},
+
 
   logout: async (): Promise<void> => {
     await fetch(`${API_URL}/logout`, {
-      method: 'POST',
+      method: "POST",
       headers: getAuthHeaders(),
     });
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
   },
 };
 

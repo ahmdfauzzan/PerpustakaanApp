@@ -5,9 +5,20 @@ export interface User {
 }
 
 export interface AuthResponse {
-  user: User;
+  message: string;
   token: string;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  data?: {
+    id: number;
+    name: string;
+    email: string;
+  };
 }
+
 
 export interface Member {
   id: number;

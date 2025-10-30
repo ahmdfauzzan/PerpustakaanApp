@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { UserPlus } from "lucide-react";
 import { authAPI } from "../services/api";
 
@@ -15,30 +14,18 @@ export default function Register({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    if (password !== passwordConfirmation) {
-      setError("Password dan konfirmasi password tidak cocok.");
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const response = await authAPI.register(
-        name,
-        email,
-        password,
-        passwordConfirmation
-      );
+      const response = await authAPI.register(name, email, password);
       localStorage.setItem("token", response.token);
-      localStorage.setItem("user", JSON.stringify(response.user));
+      localStorage.setItem("user", JSON.stringify(response.data));
       onRegister();
     } catch (err) {
       setError("Registrasi gagal. Email mungkin sudah terdaftar.");
@@ -106,21 +93,6 @@ export default function Register({
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              placeholder="••••••••"
-              required
-              minLength={8}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Konfirmasi Password
-            </label>
-            <input
-              type="password"
-              value={passwordConfirmation}
-              onChange={(e) => setPasswordConfirmation(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               placeholder="••••••••"
               required
