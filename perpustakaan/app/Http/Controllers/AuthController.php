@@ -63,14 +63,5 @@ class AuthController extends Controller
         return response()->json(['message' => 'Logout success']);
     }
 
-    // ✅ TAMBAHAN UNTUK WEB
-    public function showLoginForm()
-    {
-        return view('auth.login');
-    }
 
-    public function showRegisterForm()
-    {
-        return view('auth.register');
-    }
 }

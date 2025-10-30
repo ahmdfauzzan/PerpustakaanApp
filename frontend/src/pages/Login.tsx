@@ -1,73 +1,107 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import api from "../services/api";
+import { authAPI } from "../services/api";
+import { LogIn } from "lucide-react";
 
-function Login() {
-  const navigate = useNavigate();
+interface LoginProps {
+  onLogin: () => void;
+  onSwitchToRegister: () => void;
+}
+
+export default function Login({ onLogin, onSwitchToRegister }: LoginProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
-      const res = await api.post("/login", { email, password });
-      const { token, user } = res.data;
-
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-      // ✅ Redirect ke dashboard
-      navigate("/dashboard");
-    } catch (err: any) {
-      console.error("Login gagal:", err);
-      setError("Email atau password salah!");
+      const response = await authAPI.login(email, password);
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("user", JSON.stringify(response.user));
+      onLogin();
+    } catch (err) {
+      setError("Login gagal. Periksa email dan password Anda.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <form
-        onSubmit={handleLogin}
-        className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm"
-      >
-        <h2 className="text-2xl font-bold text-center mb-6 text-blue-600">
-          Login
-        </h2>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+        <div className="flex items-center justify-center mb-8">
+          <div className="bg-blue-600 p-3 rounded-xl">
+            <LogIn className="w-8 h-8 text-white" />
+          </div>
+        </div>
 
-        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
+          Sistem Perpustakaan
+        </h1>
+        <p className="text-center text-gray-600 mb-8">
+          Masuk untuk mengakses sistem
+        </p>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          required
-        />
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          required
-        />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="email@example.com"
+              required
+            />
+          </div>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-        >
-          Login
-        </button>
-      </form>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Memproses..." : "Masuk"}
+          </button>
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-gray-600">
+            Belum punya akun?{" "}
+            <button
+              onClick={onSwitchToRegister}
+              className="text-blue-600 hover:text-blue-700 font-semibold"
+            >
+              Daftar disini
+            </button>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
-
-export default Login;
