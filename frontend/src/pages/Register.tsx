@@ -1,16 +1,10 @@
 import { useState } from "react";
 import { UserPlus } from "lucide-react";
 import { authAPI } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
-interface RegisterProps {
-  onRegister: () => void;
-  onSwitchToLogin: () => void;
-}
-
-export default function Register({
-  onRegister,
-  onSwitchToLogin,
-}: RegisterProps) {
+export default function Register() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +20,9 @@ export default function Register({
       const response = await authAPI.register(name, email, password);
       localStorage.setItem("token", response.token);
       localStorage.setItem("user", JSON.stringify(response.data));
-      onRegister();
+
+      window.dispatchEvent(new Event("storage"));
+      navigate("/");
     } catch (err) {
       setError("Registrasi gagal. Email mungkin sudah terdaftar.");
     } finally {
@@ -113,7 +109,7 @@ export default function Register({
           <p className="text-gray-600">
             Sudah punya akun?{" "}
             <button
-              onClick={onSwitchToLogin}
+              onClick={() => navigate("/login")}
               className="text-blue-600 hover:text-blue-700 font-semibold"
             >
               Masuk disini
